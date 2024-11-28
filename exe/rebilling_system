@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+
+require "rebilling_system"
