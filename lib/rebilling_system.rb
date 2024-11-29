@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require "dotenv/load"
-require_relative "rebilling_system/version"
-require_relative "jobs/payment_retry"
 require "date"
 require "faraday"
+require_relative "rebilling_system/version"
+require_relative "jobs/payment_retry"
 
 class RebillingSystem
   def initialize(subscription_id, amount)
