@@ -2,6 +2,7 @@
 
 require "dotenv/load"
 require_relative "rebilling_system/version"
+require_relative "jobs/payment_retry"
 require "date"
 require "faraday"
 
@@ -26,7 +27,10 @@ class RebillingSystem
       case result["status"]
       when "success"
         remaining_balance -= partial_amount
-        break if remaining_balance <= 0 # Fully paid
+        if remaining_balance <= 0
+          puts "Payment successful for subscription #{@subscription_id}."
+          break
+        end
       when "insufficient_funds"
         next
       when "failed"
@@ -48,10 +52,15 @@ class RebillingSystem
     response = Faraday.post("#{ENV["PAYMENT_API_URL"]}/paymentIntents/create")
 
     JSON.parse(response.body)
+  rescue Faraday::Error => e
+    puts "API gateway error for subscription_id: #{@subscription_id} and amount: #{amount} #{e.inspect}"
+    { "status" => "failed" }
   end
 
   # Schedule a partial payment for the remaining balance a week later
   def schedule_partial_payment(subscription_id, amount)
     puts "Scheduling remaining balance of #{amount} for subscription #{subscription_id} in one week."
+    one_week_from_now = Time.now + (7 * 24 * 60 * 60)
+    PaymentRetryJob.perform_at(one_week_from_now, subscription_id, amount)
   end
 end

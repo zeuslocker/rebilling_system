@@ -2,6 +2,7 @@
 
 require "rebilling_system"
 require "webmock/rspec"
+require "rspec-sidekiq"
 require "pry"
 
 RSpec.configure do |config|

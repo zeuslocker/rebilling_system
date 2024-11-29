@@ -13,5 +13,8 @@ end
 
 group :test do
   gem "rspec", "~> 3.0"
+  gem "rspec-sidekiq"
   gem "webmock"
 end
+
+gem "sidekiq", "~> 7.3"
